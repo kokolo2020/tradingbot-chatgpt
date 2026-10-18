@@ -37,7 +37,7 @@ header{background:#081021d9;backdrop-filter:blur(12px)}
 @media(max-width:1050px){.v3-grid{grid-template-columns:minmax(0,1fr) 240px}.v3-grid>.panel:first-child{grid-column:1/-1}.visual-row{grid-template-columns:1fr}}
 @media(max-width:690px){.v3-grid{grid-template-columns:minmax(0,1fr)}.v3-grid>.panel:first-child{grid-column:auto}.v3-grid>.panel:last-child{grid-column:auto}#orbCanvas{height:330px}.orb-center{top:53%;width:95px;height:95px}.orb-center b{font-size:22px}}
 </style></head><body>
-<header><div><h1><span class="brand">◈</span> EDGE50 <span class="sub">/ KuCoin PERPETUAL LAB</span></h1><div class="sub">V3.2 · LIVE MARKET MONITOR + PAPER EXECUTION</div></div><span class="chip" id="connection">● Connecting…</span></header>
+<header><div><h1><span class="brand">◈</span> EDGE50 <span class="sub">/ KuCoin PERPETUAL LAB</span></h1><div class="sub">V3.3 · LIVE MARKET MONITOR + PAPER EXECUTION</div></div><span class="chip" id="connection">● Connecting…</span></header>
 <main><div class="hero"><div><h2>Trading Command Center</h2><p class="muted">Scan 50 KuCoin USDT perpetual swaps · fixed 3× · long + short · paper only</p></div><div class="controls"><span class="sub" id="updated">Awaiting exchange</span><button class="action secondary" id="refresh">↻ Refresh</button><button class="action" id="toggle">Start paper bot</button></div></div><div class="error" id="error"></div>
 <div class="presets" id="presets"></div><section class="panel"><div class="hero"><div><h3 id="selectionTitle">Selected coins</h3><div class="sub" id="selectionRule">Ranked by 24-hour KuCoin USDT perpetual swap turnover. The first 5, 10, or 15 are included in each smaller preset.</div></div><span class="chip" id="selectionCount">Waiting for KuCoin</span></div><div class="selected-coins" id="selectedCoins"><span class="muted">Loading live coin selections…</span></div></section>
 <div class="metrics" id="metrics"></div>
@@ -62,7 +62,12 @@ header{background:#081021d9;backdrop-filter:blur(12px)}
 <div class="panel"><h3>Strategy & risk engine</h3><div class="hint"><b>3× perpetual trend confirmation (experimental)</b><p>Long when both 24-hour and 1-hour momentum are positive; short when both are negative. Indicative take-profit is 2% in the favorable underlying-price direction, and stop-loss is 1% against the position. These are illustrative trade rules, not price predictions. At 3× leverage, a 1% price move is approximately a 3% margin change before costs.</p><p>Entry filter: absolute 24h move 1–8%, same-direction 1h change 0.3–2.5%, 24h turnover above $1m, spread below 0.25%. One position per swap; 5% daily portfolio loss halts new entries. Simplified isolated-margin liquidation approximation; no real exchange liquidation engine.</p></div><p class="muted">Model assumption: 0.10% taker fee and 0.05% slippage per side on full 3× notional, plus bid/ask spread. Funding is not accrued until reliable funding data can be integrated; therefore paper returns are incomplete and optimistic or pessimistic versus real perpetual fills.</p><p class="muted" id="riskState">Waiting for prices…</p><button class="action secondary" id="reset">Reset selected paper portfolio</button></div></div>
 <section class="panel"><div class="hero"><h3>50-coin live scanner & targets</h3><div class="controls"><span class="sub">Prices quoted in USDT</span><select id="filter"><option value="all">All 50</option><option value="signals">Entry candidates</option><option value="positions">Open paper positions</option></select></div></div><div class="scroll"><table><thead><tr><th>#</th><th>Coin</th><th>KuCoin price</th><th>24h</th><th>1h</th><th>Direction</th><th>Indicative target</th><th>Risk stop</th><th>Spread</th><th>Paper P/L</th></tr></thead><tbody id="coinRows"><tr><td colspan="10">Connecting to KuCoin public market feed…</td></tr></tbody></table></div></section>
 <section class="two"><div class="panel"><h3>Paper trades · selected portfolio</h3><div class="scroll"><table><thead><tr><th>Time</th><th>Coin</th><th>Action</th><th>Price</th><th>Size</th><th>Fees / slip</th></tr></thead><tbody id="trades"><tr><td colspan="6">No simulated trades yet</td></tr></tbody></table></div></div><div class="panel"><h3>About the data</h3><p class="muted">Market data comes from the public KuCoin REST API, refreshed approximately every 30 seconds while the page is open. Selected coins are the 50 highest-24h-USDT-turnover USDT-settled perpetual swaps returned by KuCoin; this is not a global top-50-by-market-cap ranking. Positions are simulated with fixed 3× notional and isolated margin.</p><p class="muted">All four portfolios maintain separate virtual accounts in local browser storage. A page refresh retains the last local ledger, but other devices do not share it. The bot only evaluates trades while the page is open. Orders are simulated using bid/ask quotes and estimated fees and slippage, not exchange fills. Funding, maintenance-margin brackets, insurance fund, mark-price liquidation and auto-deleveraging are not fully modeled. If KuCoin blocks browser requests, the page explicitly shows an unavailable feed.</p><p class="muted">No guaranteed profits; this experimental strategy has not passed a long-duration out-of-sample backtest.</p></div></section>
-<footer>EDGE50 V3.2 · Educational simulation · No connection to a real trading account · No exchange API keys required. Use realistic fees and verify order-book liquidity before considering real capital.</footer></main>
+<footer>EDGE50 V3.3 · Educational simulation · No connection to a real trading account · No exchange API keys required. Use realistic fees and verify order-book liquidity before considering real capital.</footer></main>
+<script>
+window.addEventListener('error',function(e){const el=document.getElementById('connection'),box=document.getElementById('error');if(el){el.textContent='● Dashboard error';el.className='chip down'}if(box){box.style.display='block';box.textContent='Dashboard script error: '+(e.message||'Unknown startup problem')}});
+window.addEventListener('unhandledrejection',function(e){const el=document.getElementById('error');if(el){el.style.display='block';el.textContent='Async startup error: '+String(e.reason?.message||e.reason)}});
+setTimeout(function(){const el=document.getElementById('connection');if(el&&/Connecting|Syncing/.test(el.textContent)){el.textContent='● Connection timeout';const box=document.getElementById('error');if(box){box.style.display='block';box.textContent='Startup took too long. Check Netlify function deployment and refresh.'}}},17000);
+</script>
 <script>
 'use strict';
 const CONFIG=[{id:'lab',name:'Main Research Lab',coins:50,unit:150,budget:10000},{id:'starter',name:'Starter',coins:5,unit:50,budget:250},{id:'growth',name:'Growth',coins:10,unit:50,budget:500},{id:'extended',name:'Extended',coins:15,unit:50,budget:750}];
@@ -133,6 +138,130 @@ function drawVisuals(){
  const ranked=active.sort((a,b)=>Math.abs(b.hour)-Math.abs(a.hour)).slice(0,5);
  byId('decisionStack').innerHTML=ranked.length?ranked.map(p=>{const sig=signal(p),isLong=sig==='LONG ↑',side=isLong?'LONG':'SHORT',t=isLong?p.ask*1.02:p.bid*.98,st=isLong?p.ask*.99:p.bid*1.01;
  return '<div class="signal-card"><div class="row" justify="between"><div class="symbol">'+p.sym.replace(/USDTM$/,'').replace(/^XBT$/,'BTC')+'</div><div class="direction '+(isLong?'up':'down')+'">'+sig+'</div></div><div class="meta">1H '+fmt(p.hour)+'% · 24H '+fmt(p.day)+'%<br>Target const h=a.history.slice(-90),svg=byId('equityChart');if(!h.length)return;const v=h.map(x=>x.equity),mi=Math.min(...v)*.998,ma=Math.max(...v)*1.002,r=ma-mi||1;const pts=h.map((x,i)=>(30+i/Math.max(1,h.length-1)*640)+','+(220-(x.equity-mi)/r*180)).join(' ');svg.innerHTML='<line x1="30" y1="220" x2="675" y2="220" stroke="#31445f"/><polyline points="'+pts+'" stroke="#54d3f8" stroke-width="3" fill="none"/><text x="32" y="25" fill="#9ac3db">$'+fmt(ma)+'</text><text x="32" y="247" fill="#9ac3db">$'+fmt(mi)+'</text>';byId('curveNote').textContent=h.length+' paper equity snapshots'}
+function curve(a){
+ const svg=byId('equityChart');if(!svg)return;
+ const h=a.history.slice(-90);if(!h.length){svg.innerHTML='';return}
+ const vals=h.map(x=>Number(x.equity)||0),mi=Math.min(...vals)*.998,ma=Math.max(...vals)*1.002,span=ma-mi||1;
+ const points=h.map((x,i)=>(30+i/Math.max(1,h.length-1)*640)+','+(220-((Number(x.equity)||0)-mi)/span*180)).join(' ');
+ svg.innerHTML='<line x1="30" y1="220" x2="675" y2="220" stroke="#31445f"/><polyline points="'+points+'" stroke="#54d3f8" stroke-width="3" fill="none"/><text x="32" y="25" fill="#9ac3db">
+ const c=cfg(),a=acct(),e=equity(a),chosen=pairs.slice(0,c.coins);
+ byId('presets').innerHTML=CONFIG.map(x=>'<button class="preset '+(x.id===selected?'active':'')+'" data-id="'+x.id+'"><span class="mini">'+x.name+' · 3× perpetual</span><strong>'+x.coins+' coins</strong><span class="mini">$'+x.unit+' margin / coin · $'+fmt(x.unit*3,0)+' exposure each</span><div class="coin-names">'+(pairs.length?pairs.slice(0,x.coins).map(p=>p.sym.replace(/USDTM$/,'').replace(/^XBT$/,'BTC')).join(' · '):'Awaiting KuCoin feed')+'</div></button>').join('');
+ document.querySelectorAll('.preset').forEach(b=>b.onclick=()=>{selected=b.dataset.id;view()});
+ byId('selectionTitle').textContent=c.name+' · '+c.coins+' selected perpetuals · 3×';
+ byId('selectionCount').textContent=chosen.length+'/'+c.coins+' swaps';
+ byId('selectedCoins').innerHTML=chosen.length?chosen.map((p,i)=>'<span class="coin-tag">'+(i+1)+'. <b>'+p.sym.replace(/USDTM$/,'').replace(/^XBT$/,'BTC')+'</b> <span class="muted">$'+fmt(p.price,p.price<1?6:2)+'</span></span>').join(''):'<span class="muted">Waiting for live KuCoin perpetual prices.</span>';
+ const vals=[['Virtual starting capital','$'+fmt(c.budget)],['Paper equity','$'+fmt(e)],['Net P/L','<span class="'+(e>=c.budget?'up':'down')+'">'+(e>=c.budget?'+':'−')+'$'+fmt(Math.abs(e-c.budget))+'</span>'],['Open 3× positions',Object.keys(a.positions).length+' / '+c.coins],['Free margin','$'+fmt(a.cash)]];
+ byId('metrics').innerHTML=vals.map(([k,v])=>'<div class="panel metric"><span class="sub">'+k+'</span><b>'+v+'</b></div>').join('');
+ byId('toggle').textContent=a.enabled?'Pause 3× paper bot':'Start 3× paper bot';
+ byId('riskState').textContent=a.lock?'5% daily drawdown lock: no new entries':a.enabled?'3× simulated perpetual trading enabled while page is open':'Paper bot paused · no real orders';
+ const filter=byId('filter').value,visible=pairs.filter(p=>filter==='signals'?['LONG ↑','SHORT ↓'].includes(signal(p)):filter==='positions'?Boolean(a.positions[p.sym]):true);
+ byId('coinRows').innerHTML=visible.map(p=>{const sig=signal(p),pos=a.positions[p.sym],dec=p.price<1?6:2;
+ const target=sig==='LONG ↑'?p.ask*1.02:sig==='SHORT ↓'?p.bid*.98:null,stop=sig==='LONG ↑'?p.ask*.99:sig==='SHORT ↓'?p.bid*1.01:null;
+ const pl=pos?unreal(pos,p)-pos.buyFee:null;
+ return '<tr class="'+(chosen.includes(p)?'picked-row':'')+'"><td>'+(pairs.indexOf(p)+1)+'</td><td><b>'+p.sym.replace(/USDTM$/,'').replace(/^XBT$/,'BTC')+'</b><div class="sub">USDT perpetual · 3×</div></td><td>$'+fmt(p.price,dec)+'</td><td class="'+(p.day>=0?'up':'down')+'">'+fmt(p.day)+'%</td><td class="'+(p.hour>=0?'up':'down')+'">'+(Number.isFinite(p.hour)?fmt(p.hour)+'%':'—')+'</td><td class="'+(sig==='LONG ↑'?'up':sig==='SHORT ↓'?'down':'muted')+'">'+sig+(pos?' · '+pos.side:'')+'</td><td>'+(target===null?'—':'$'+fmt(target,dec))+'</td><td>'+(stop===null?'—':'$'+fmt(stop,dec))+'</td><td>'+fmt((p.ask-p.bid)/p.price*100,3)+'%</td><td class="'+(pl>=0?'up':'down')+'">'+(pl===null?'—':'$'+fmt(pl))+'</td></tr>';
+ }).join('')||'<tr><td colspan="10">No matching live perpetual data.</td></tr>';
+ byId('trades').innerHTML=a.trades.slice(-50).reverse().map(t=>'<tr><td>'+new Date(t.time).toLocaleTimeString()+'</td><td>'+t.sym+'</td><td>'+t.side+'</td><td>'+fmt(t.price,5)+'</td><td>$'+fmt(t.notional)+'</td><td>$'+fmt(t.cost)+'</td></tr>').join('')||'<tr><td colspan="6">No paper trades yet</td></tr>';
+ curve(a);drawVisuals();
+}
+const KUCOIN='https://api-futures.kucoin.com'; // upstream used only by Netlify function
+const priceHistory={};
+async function kucoin(path){
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
+ try{const r=await fetch(KUCOIN+path,{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('KuCoin HTTP '+r.status);const j=await r.json();if(j.code!=='200000')throw Error(j.msg||'KuCoin error');return j.data}finally{clearTimeout(timer)}
+}
+async function update(){
+ if(loading)return;loading=true;
+ const badge=byId('connection'),error=byId('error');badge.textContent='● Connecting KuCoin…';
+ try{
+  // Two batched public requests, never 50 individual candle requests per refresh.
+  const response=await fetch('/.netlify/functions/kucoin',{cache:'no-store',signal:AbortSignal.timeout(12000)});
+  const feed=await response.json();
+  if(!response.ok||!feed.ok)throw Error(feed.error||'Proxy HTTP '+response.status);
+  const contracts=feed.contracts,quotes=feed.tickers;
+  if(!Array.isArray(contracts)||!Array.isArray(quotes))throw Error('Unexpected KuCoin response');
+  const bySymbol=new Map(quotes.map(q=>[q.symbol,q]));
+  const ranked=contracts.filter(p=>p.status==='Open'&&p.settleCurrency==='USDT'&&p.quoteCurrency==='USDT'&&!p.expireDate&&p.marketType!=='STOCK')
+    .map(p=>({p,q:bySymbol.get(p.symbol),vol:Number(p.turnoverOf24h)||0})).filter(x=>x.q&&x.vol>0).sort((x,y)=>y.vol-x.vol).slice(0,50);
+  if(!ranked.length)throw Error('No active USDT perpetual quotes available');
+  const stamp=Date.now();
+  pairs=ranked.map(({p,q,vol})=>{
+    const price=Number(q.price),bid=Number(q.bestBidPrice),ask=Number(q.bestAskPrice);
+    const history=priceHistory[p.symbol]||(priceHistory[p.symbol]=[]);
+    if(price>0){history.push({t:stamp,p:price});while(history.length>0&&history[0].t<stamp-4200000)history.shift()}
+    const older=history.filter(x=>x.t<=stamp-3600000).at(-1);
+    return {sym:p.symbol,price,bid,ask,vol,day:Number(p.priceChgPct||0)*100,hour:older?((price/older.p)-1)*100:NaN};
+  }).filter(p=>p.price>0&&p.bid>0&&p.ask>0);
+  if(!pairs.length)throw Error('KuCoin quotes missing usable bid or ask');
+  lastPrices=Object.fromEntries(pairs.map(p=>[p.sym,p]));
+  tradeTick();badge.textContent='● KuCoin Futures live';badge.className='chip ok';error.style.display='none';
+  byId('updated').textContent='Last sync: '+new Date().toLocaleTimeString()+' · '+pairs.length+' swaps';
+ }catch(e){
+  badge.textContent='● KuCoin unavailable';badge.className='chip down';error.style.display='block';
+  error.textContent='KuCoin via Netlify feed failed: '+e.message+'. Check regional access and browser network; no synthetic prices generated.';
+ }finally{loading=false;view()}
+}
+byId('refresh').onclick=update;byId('toggle').onclick=()=>{acct().enabled=!acct().enabled;save();view()};byId('reset').onclick=()=>{if(confirm('Reset '+cfg().name+' paper ledger and cash?')){db[selected]=blank(cfg());save();view()}};byId('filter').onchange=view;view();update();setInterval(update,30000);
+</script></body></html>+fmt(ma)+'</text><text x="32" y="247" fill="#9ac3db">
+ const c=cfg(),a=acct(),e=equity(a),chosen=pairs.slice(0,c.coins);
+ byId('presets').innerHTML=CONFIG.map(x=>'<button class="preset '+(x.id===selected?'active':'')+'" data-id="'+x.id+'"><span class="mini">'+x.name+' · 3× perpetual</span><strong>'+x.coins+' coins</strong><span class="mini">$'+x.unit+' margin / coin · $'+fmt(x.unit*3,0)+' exposure each</span><div class="coin-names">'+(pairs.length?pairs.slice(0,x.coins).map(p=>p.sym.replace(/USDTM$/,'').replace(/^XBT$/,'BTC')).join(' · '):'Awaiting KuCoin feed')+'</div></button>').join('');
+ document.querySelectorAll('.preset').forEach(b=>b.onclick=()=>{selected=b.dataset.id;view()});
+ byId('selectionTitle').textContent=c.name+' · '+c.coins+' selected perpetuals · 3×';
+ byId('selectionCount').textContent=chosen.length+'/'+c.coins+' swaps';
+ byId('selectedCoins').innerHTML=chosen.length?chosen.map((p,i)=>'<span class="coin-tag">'+(i+1)+'. <b>'+p.sym.replace(/USDTM$/,'').replace(/^XBT$/,'BTC')+'</b> <span class="muted">$'+fmt(p.price,p.price<1?6:2)+'</span></span>').join(''):'<span class="muted">Waiting for live KuCoin perpetual prices.</span>';
+ const vals=[['Virtual starting capital','$'+fmt(c.budget)],['Paper equity','$'+fmt(e)],['Net P/L','<span class="'+(e>=c.budget?'up':'down')+'">'+(e>=c.budget?'+':'−')+'$'+fmt(Math.abs(e-c.budget))+'</span>'],['Open 3× positions',Object.keys(a.positions).length+' / '+c.coins],['Free margin','$'+fmt(a.cash)]];
+ byId('metrics').innerHTML=vals.map(([k,v])=>'<div class="panel metric"><span class="sub">'+k+'</span><b>'+v+'</b></div>').join('');
+ byId('toggle').textContent=a.enabled?'Pause 3× paper bot':'Start 3× paper bot';
+ byId('riskState').textContent=a.lock?'5% daily drawdown lock: no new entries':a.enabled?'3× simulated perpetual trading enabled while page is open':'Paper bot paused · no real orders';
+ const filter=byId('filter').value,visible=pairs.filter(p=>filter==='signals'?['LONG ↑','SHORT ↓'].includes(signal(p)):filter==='positions'?Boolean(a.positions[p.sym]):true);
+ byId('coinRows').innerHTML=visible.map(p=>{const sig=signal(p),pos=a.positions[p.sym],dec=p.price<1?6:2;
+ const target=sig==='LONG ↑'?p.ask*1.02:sig==='SHORT ↓'?p.bid*.98:null,stop=sig==='LONG ↑'?p.ask*.99:sig==='SHORT ↓'?p.bid*1.01:null;
+ const pl=pos?unreal(pos,p)-pos.buyFee:null;
+ return '<tr class="'+(chosen.includes(p)?'picked-row':'')+'"><td>'+(pairs.indexOf(p)+1)+'</td><td><b>'+p.sym.replace(/USDTM$/,'').replace(/^XBT$/,'BTC')+'</b><div class="sub">USDT perpetual · 3×</div></td><td>$'+fmt(p.price,dec)+'</td><td class="'+(p.day>=0?'up':'down')+'">'+fmt(p.day)+'%</td><td class="'+(p.hour>=0?'up':'down')+'">'+(Number.isFinite(p.hour)?fmt(p.hour)+'%':'—')+'</td><td class="'+(sig==='LONG ↑'?'up':sig==='SHORT ↓'?'down':'muted')+'">'+sig+(pos?' · '+pos.side:'')+'</td><td>'+(target===null?'—':'$'+fmt(target,dec))+'</td><td>'+(stop===null?'—':'$'+fmt(stop,dec))+'</td><td>'+fmt((p.ask-p.bid)/p.price*100,3)+'%</td><td class="'+(pl>=0?'up':'down')+'">'+(pl===null?'—':'$'+fmt(pl))+'</td></tr>';
+ }).join('')||'<tr><td colspan="10">No matching live perpetual data.</td></tr>';
+ byId('trades').innerHTML=a.trades.slice(-50).reverse().map(t=>'<tr><td>'+new Date(t.time).toLocaleTimeString()+'</td><td>'+t.sym+'</td><td>'+t.side+'</td><td>'+fmt(t.price,5)+'</td><td>$'+fmt(t.notional)+'</td><td>$'+fmt(t.cost)+'</td></tr>').join('')||'<tr><td colspan="6">No paper trades yet</td></tr>';
+ curve(a);drawVisuals();
+}
+const KUCOIN='https://api-futures.kucoin.com'; // upstream used only by Netlify function
+const priceHistory={};
+async function kucoin(path){
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
+ try{const r=await fetch(KUCOIN+path,{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('KuCoin HTTP '+r.status);const j=await r.json();if(j.code!=='200000')throw Error(j.msg||'KuCoin error');return j.data}finally{clearTimeout(timer)}
+}
+async function update(){
+ if(loading)return;loading=true;
+ const badge=byId('connection'),error=byId('error');badge.textContent='● Connecting KuCoin…';
+ try{
+  // Two batched public requests, never 50 individual candle requests per refresh.
+  const response=await fetch('/.netlify/functions/kucoin',{cache:'no-store',signal:AbortSignal.timeout(12000)});
+  const feed=await response.json();
+  if(!response.ok||!feed.ok)throw Error(feed.error||'Proxy HTTP '+response.status);
+  const contracts=feed.contracts,quotes=feed.tickers;
+  if(!Array.isArray(contracts)||!Array.isArray(quotes))throw Error('Unexpected KuCoin response');
+  const bySymbol=new Map(quotes.map(q=>[q.symbol,q]));
+  const ranked=contracts.filter(p=>p.status==='Open'&&p.settleCurrency==='USDT'&&p.quoteCurrency==='USDT'&&!p.expireDate&&p.marketType!=='STOCK')
+    .map(p=>({p,q:bySymbol.get(p.symbol),vol:Number(p.turnoverOf24h)||0})).filter(x=>x.q&&x.vol>0).sort((x,y)=>y.vol-x.vol).slice(0,50);
+  if(!ranked.length)throw Error('No active USDT perpetual quotes available');
+  const stamp=Date.now();
+  pairs=ranked.map(({p,q,vol})=>{
+    const price=Number(q.price),bid=Number(q.bestBidPrice),ask=Number(q.bestAskPrice);
+    const history=priceHistory[p.symbol]||(priceHistory[p.symbol]=[]);
+    if(price>0){history.push({t:stamp,p:price});while(history.length>0&&history[0].t<stamp-4200000)history.shift()}
+    const older=history.filter(x=>x.t<=stamp-3600000).at(-1);
+    return {sym:p.symbol,price,bid,ask,vol,day:Number(p.priceChgPct||0)*100,hour:older?((price/older.p)-1)*100:NaN};
+  }).filter(p=>p.price>0&&p.bid>0&&p.ask>0);
+  if(!pairs.length)throw Error('KuCoin quotes missing usable bid or ask');
+  lastPrices=Object.fromEntries(pairs.map(p=>[p.sym,p]));
+  tradeTick();badge.textContent='● KuCoin Futures live';badge.className='chip ok';error.style.display='none';
+  byId('updated').textContent='Last sync: '+new Date().toLocaleTimeString()+' · '+pairs.length+' swaps';
+ }catch(e){
+  badge.textContent='● KuCoin unavailable';badge.className='chip down';error.style.display='block';
+  error.textContent='KuCoin via Netlify feed failed: '+e.message+'. Check regional access and browser network; no synthetic prices generated.';
+ }finally{loading=false;view()}
+}
+byId('refresh').onclick=update;byId('toggle').onclick=()=>{acct().enabled=!acct().enabled;save();view()};byId('reset').onclick=()=>{if(confirm('Reset '+cfg().name+' paper ledger and cash?')){db[selected]=blank(cfg());save();view()}};byId('filter').onchange=view;view();update();setInterval(update,30000);
+</script></body></html>+fmt(mi)+'</text>';
+ byId('curveNote').textContent=h.length+' recorded paper equity snapshots';
+}
 function view(){
  const c=cfg(),a=acct(),e=equity(a),chosen=pairs.slice(0,c.coins);
  byId('presets').innerHTML=CONFIG.map(x=>'<button class="preset '+(x.id===selected?'active':'')+'" data-id="'+x.id+'"><span class="mini">'+x.name+' · 3× perpetual</span><strong>'+x.coins+' coins</strong><span class="mini">$'+x.unit+' margin / coin · $'+fmt(x.unit*3,0)+' exposure each</span><div class="coin-names">'+(pairs.length?pairs.slice(0,x.coins).map(p=>p.sym.replace(/USDTM$/,'').replace(/^XBT$/,'BTC')).join(' · '):'Awaiting KuCoin feed')+'</div></button>').join('');
